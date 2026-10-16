@@ -1,0 +1,7 @@
+customer_id,email,signup_date,balance
+c101,mira@example.com,2026-01-10,120.00
+c102,alex@example.com,2026-01-12,88.25
+c102,alex@example.com,2026-01-12,88.25
+c103,,2026-02-01,55.00
+c104,no-at-symbol,2026-03-10,-9.99
+c105,tara@example.com,not-a-date,40.00

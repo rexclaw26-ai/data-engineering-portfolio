@@ -1,0 +1,4 @@
+customer_id,email,signup_date,balance
+c201,dana@example.com,2026-02-03,20.00
+c202,leo@example.com,2026-04-08,0.00
+c203,nia@example.com,2026-05-20,150.25

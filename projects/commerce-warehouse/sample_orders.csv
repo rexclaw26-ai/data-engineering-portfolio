@@ -1,0 +1,7 @@
+order_id,ordered_at,customer_id,region,product_id,category,quantity,unit_price
+o1,2026-08-02,c1,north,p1,software,2,19.99
+o2,2026-08-03,c1,north,p2,hardware,1,49.50
+o3,2026-08-15,c2,south,p1,software,1,19.99
+o4,2026-09-01,c2,south,p3,services,3,15.00
+o5,2026-09-02,c3,west,p2,hardware,2,49.50
+o6,2026-09-09,c1,north,p1,software,1,19.99

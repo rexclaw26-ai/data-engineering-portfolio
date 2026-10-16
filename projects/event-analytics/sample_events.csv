@@ -1,0 +1,10 @@
+event_id,occurred_at,user_id,event_type,revenue
+e1,2026-10-01T10:00:00Z,u101,page_view,0
+e2,2026-10-01T10:05:00Z,u101,add_to_cart,0
+e3,2026-10-01T11:00:00Z,u101,purchase,29.99
+e4,2026-10-01T12:00:00Z,u102,page_view,0
+e5,2026-10-01T12:30:00Z,u102,purchase,14.50
+e6,2026-10-02T09:00:00Z,u103,page_view,0
+e7,2026-10-02T10:00:00Z,u103,purchase,40.00
+e7,2026-10-02T10:00:00Z,u103,purchase,40.00
+e9,2026-10-02T11:00:00Z,u105,purchase,not-a-number

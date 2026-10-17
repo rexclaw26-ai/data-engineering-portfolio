@@ -64,6 +64,16 @@ def daily_metrics(db_path):
         query = (HERE / "daily_metrics.sql").read_text(encoding="utf-8")
         return db.execute(query).fetchall()
 
+def weekly_metrics(db_path):
+    with sqlite3.connect(db_path) as db:
+        query = (HERE / "weekly_metrics.sql").read_text(encoding="utf-8")
+        return db.execute(query).fetchall()
+
+def top_events(db_path):
+    with sqlite3.connect(db_path) as db:
+        query = (HERE / "top_events.sql").read_text(encoding="utf-8")
+        return db.execute(query).fetchall()
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, default=HERE / "sample_events.csv")
@@ -73,6 +83,12 @@ def main():
     print("Ingested:", stats)
     print("date | events | unique_users | purchases | revenue_usd")
     for row in daily_metrics(args.db):
+        print(" | ".join(str(value) for value in row))
+    print("week | events | unique_users | purchases | revenue_usd")
+    for row in weekly_metrics(args.db):
+        print(" | ".join(str(value) for value in row))
+    print("event_type | event_count")
+    for row in top_events(args.db):
         print(" | ".join(str(value) for value in row))
 
 if __name__ == "__main__":

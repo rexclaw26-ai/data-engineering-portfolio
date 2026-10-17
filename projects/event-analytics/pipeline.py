@@ -42,7 +42,7 @@ def normalize(row):
     return event_id, timestamp.isoformat(), timestamp.date().isoformat(), user_id, event_type, cents
 
 def load_events(csv_path, db_path):
-    stats = {"inserted": 0, "duplicates": 0, "rejected": 0}
+    stats = {"inserted": 0, "updated": 0, "duplicates": 0, "rejected": 0}
     with sqlite3.connect(db_path) as db:
         db.execute(SCHEMA)
         with open(csv_path, newline="", encoding="utf-8") as handle:
@@ -52,10 +52,19 @@ def load_events(csv_path, db_path):
                 except (ValueError, KeyError, AttributeError):
                     stats["rejected"] += 1
                     continue
-                cursor = db.execute(
-                    "INSERT OR IGNORE INTO events VALUES (?, ?, ?, ?, ?, ?)", values
-                )
-                stats["inserted" if cursor.rowcount else "duplicates"] += 1
+                event_id = values[0]
+                existing = db.execute("SELECT occurred_at, event_date, user_id, event_type, revenue_cents FROM events WHERE event_id = ?", (event_id,)).fetchone()
+                if existing is None:
+                    db.execute("INSERT INTO events VALUES (?, ?, ?, ?, ?, ?)", values)
+                    stats["inserted"] += 1
+                else:
+                    # Compare all fields except event_id (values[1:])
+                    if tuple(values[1:]) == existing:
+                        stats["duplicates"] += 1
+                    else:
+                        db.execute("UPDATE events SET occurred_at=?, event_date=?, user_id=?, event_type=?, revenue_cents=? WHERE event_id=?",
+                                   (values[1], values[2], values[3], values[4], values[5], event_id))
+                        stats["updated"] += 1
         db.commit()
     return stats
 

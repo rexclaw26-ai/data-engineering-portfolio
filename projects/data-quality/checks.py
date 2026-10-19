@@ -85,8 +85,10 @@ def check_csv(csv_path):
                 "issue_details": why,
             })
 
+    # duplicate failures = rows affected (matches failed_records), not distinct IDs, so summary aligns with details tab
+    duplicate_row_count = sum(1 for r in rows if r["customer_id"].strip() in duplicate_set)
     results = [
-        {"rule": "duplicate_customer_ids", "failures": len(duplicate_ids), "examples": duplicate_ids[:5]},
+        {"rule": "duplicate_customer_ids", "failures": duplicate_row_count, "examples": duplicate_ids[:5]},
         {"rule": "missing_customer_ids", "failures": missing_ids},
         {"rule": "missing_emails", "failures": missing_emails},
         {"rule": "invalid_email_format", "failures": invalid_emails},

@@ -115,9 +115,26 @@ def sync_to_sheet(report, sheet_id):
     summary_vals.append(["passed", str(report["passed"])])
     summary_vals.append(["failed_records", report["failed_count"]])
 
-    header = ["row_number", "customer_id", "email", "signup_date", "balance", "issues", "whats_wrong"]
+    # Preserve existing status values (col H) keyed by row_number so re-syncs don't wipe manual edits
+    existing_status = {}
+    try:
+        fetch_cmd = ["gws", "sheets", "spreadsheets", "values", "get", "--params", json.dumps({"spreadsheetId": sheet_id, "range": "failed_records!A1:H1000"}), "--format", "json"]
+        res = subprocess.run(fetch_cmd, capture_output=True, text=True, timeout=15)
+        if res.returncode == 0 and res.stdout.strip():
+            data = json.loads(res.stdout)
+            vals = data.get("values", [])
+            if vals and len(vals[0]) >= 8 and vals[0][7].lower() == "status":
+                for row in vals[1:]:
+                    if len(row) >= 8 and row[7].strip() and len(row) >= 1 and row[0].isdigit():
+                        existing_status[row[0].strip()] = row[7].strip()
+    except Exception:
+        pass
+
+    header = ["row_number", "customer_id", "email", "signup_date", "balance", "issues", "whats_wrong", "status"]
     failed_vals = [header]
     for r in report["failed_records"]:
+        rn = str(r["row_number"])
+        status_val = existing_status.get(rn, "")
         failed_vals.append([
             r["row_number"],
             r["customer_id"],
@@ -126,15 +143,16 @@ def sync_to_sheet(report, sheet_id):
             r["balance"],
             ", ".join(r["issues"]),
             r["issue_details"],
+            status_val,
         ])
     if len(failed_vals) == 1:
-        failed_vals.append(["(no failures - all records passed)", "", "", "", "", "", ""])
+        failed_vals.append(["(no failures - all records passed)", "", "", "", "", "", "", ""])
 
     payload = {
         "valueInputOption": "RAW",
         "data": [
             {"range": f"summary!A1:C{len(summary_vals)}", "values": summary_vals},
-            {"range": f"failed_records!A1:G{len(failed_vals)}", "values": failed_vals},
+            {"range": f"failed_records!A1:H{len(failed_vals)}", "values": failed_vals},
         ]
     }
     cmd = ["gws", "sheets", "spreadsheets", "values", "batchUpdate", "--params", json.dumps({"spreadsheetId": sheet_id}), "--json", json.dumps(payload), "--format", "json"]
